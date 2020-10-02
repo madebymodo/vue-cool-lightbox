@@ -1112,7 +1112,7 @@ var script = {
         return false;
       }
 
-      var elements = '.cool-lightbox-zoom, .cool-lightbox-zoom *, .cool-lightbox-thumbs, svg, path, rect, .cool-lightbox-thumbs *, .cool-lightbox-button, .cool-lightbox-toolbar__btn, .cool-lightbox-toolbar__btn *, .cool-lightbox-button *, .cool-lightbox__slide__img *, .cool-lightbox-video, .cool-lightbox-caption h6, .cool-lightbox-caption p, .cool-lightbox-caption a' + (interactiveTargets.length ? ', ' + interactiveTargets : '');
+      var elements = '.cool-lightbox-zoom, .cool-lightbox-zoom *, .cool-lightbox-thumbs, svg, path, rect, .cool-lightbox-thumbs *, .cool-lightbox-button, .cool-lightbox-toolbar__btn, .cool-lightbox-toolbar__btn *, .cool-lightbox-button *, .cool-lightbox__slide__img *, .cool-lightbox-video, .cool-lightbox-caption h6, .cool-lightbox-caption p, .cool-lightbox-caption a' + (this.interactiveTargets.length ? ', ' + this.interactiveTargets : '');
       if (!event.target.matches(elements)) {
         this.close();
       }
@@ -1606,7 +1606,7 @@ var __vue_staticRenderFns__ = [];
   /* style */
   var __vue_inject_styles__ = undefined;
   /* scoped */
-  var __vue_scope_id__ = "data-v-6c65163e";
+  var __vue_scope_id__ = "data-v-149efbd6";
   /* module identifier */
   var __vue_module_identifier__ = undefined;
   /* functional template */
