@@ -133,7 +133,7 @@
                 v-if="checkIsMp4(getItemSrc(itemIndex)) && getMediaType(itemIndex) === 'video'"
                 :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(itemIndex))"
                 controls=""
-                controlslist="nodownload" l
+                controlslist="nodownload"
                 poster="">
                 <source :src="checkIsMp4(getItemSrc(itemIndex))" :type="'video/'+getVideoExt(getItemSrc(itemIndex))">
                 Sorry, your browser doesn't support embedded videos
@@ -499,6 +499,11 @@ export default {
       type: String,
       default: 'ltr',
     },
+
+    interactiveTargets: {
+      type: String,
+      default: '',
+    }
   },
 
   watch: {
@@ -1326,7 +1331,7 @@ export default {
         return false;
       }
 
-      var elements = '.cool-lightbox-zoom, .cool-lightbox-zoom *, .cool-lightbox-thumbs, svg, path, rect, .cool-lightbox-thumbs *, .cool-lightbox-button, .cool-lightbox-toolbar__btn, .cool-lightbox-toolbar__btn *, .cool-lightbox-button *, .cool-lightbox__slide__img *, .cool-lightbox-video, .cool-lightbox-caption h6, .cool-lightbox-caption p, .cool-lightbox-caption a';
+      var elements = '.cool-lightbox-zoom, .cool-lightbox-zoom *, .cool-lightbox-thumbs, svg, path, rect, .cool-lightbox-thumbs *, .cool-lightbox-button, .cool-lightbox-toolbar__btn, .cool-lightbox-toolbar__btn *, .cool-lightbox-button *, .cool-lightbox__slide__img *, .cool-lightbox-video, .cool-lightbox-caption h6, .cool-lightbox-caption p, .cool-lightbox-caption a' + this.interactiveTargets ? ',' + this.interactiveTargets : '';
       if (!event.target.matches(elements)) {
         this.close()
       }
@@ -1717,7 +1722,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 // A map of breakpoints.
 $breakpoints: (
   phone-sm: 420px,
