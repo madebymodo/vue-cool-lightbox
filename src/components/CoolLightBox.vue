@@ -1,20 +1,20 @@
 <template>
   <transition name="cool-lightbox-modal">
-    <div class="cool-lightbox" 
+    <div class="cool-lightbox"
       v-bind:class="lightboxClasses"
-      v-if="isVisible" 
+      v-if="isVisible"
       @click="closeModal"
       v-bind:style="lightboxStyles">
 
       <div v-if="gallery" class="cool-lightbox-thumbs">
         <div class="cool-lightbox-thumbs__list">
-          <button 
+          <button
             type="button"
             v-for="(item, itemIndex) in items"
             :key="itemIndex"
-            :class="{ 
+            :class="{
               active: itemIndex === imgIndex,
-              'is-video': getMediaType(itemIndex) === 'video' 
+              'is-video': getMediaType(itemIndex) === 'video'
             }"
             @click="imgIndex = itemIndex"
             class="cool-lightbox__thumb">
@@ -29,11 +29,11 @@
       </div>
       <!--/cool-lightbox-thumbs-->
 
-      <div 
-        class="cool-lightbox__inner" 
+      <div
+        class="cool-lightbox__inner"
         :style="innerStyles"
 
-        @mousedown="startSwipe" 
+        @mousedown="startSwipe"
         @mousemove="continueSwipe"
         @mouseup="endSwipe"
         @touchstart="startSwipe"
@@ -61,24 +61,24 @@
         </div>
         <!--/cool-lightbox__navigation-->
 
-        <div v-if="effect === 'swipe'" 
+        <div v-if="effect === 'swipe'"
           class="cool-lightbox__wrapper cool-lightbox__wrapper--swipe"
           :style="{
             transform: 'translate3d('+xSwipeWrapper+'px, '+ySwipeWrapper+'px, 0)',
             transition: swipeAnimation
           }"
           >
-          <div 
+          <div
             v-for="(item, itemIndex) in items"
             :key="itemIndex"
             ref="items"
             class="cool-lightbox__slide"
             :class="{ 'cool-lightbox__slide--current': itemIndex === imgIndex }"
           >
-            <div 
+            <div
                 v-lazyload
                 v-if="getMediaType(itemIndex) === 'image'" key="image" :style="imgWrapperStyle" class="cool-lightbox__slide__img">
-              <img 
+              <img
                 :data-url="getItemSrc(itemIndex)"
                 :key="itemIndex"
                 draggable="false"
@@ -93,7 +93,7 @@
                 @touchmove="handleMouseMove($event)"
                 @touchend="handleMouseUp($event)"
                 />
-              
+
               <div v-show="imageLoading" class="cool-lightbox-loading-wrapper">
                 <slot name="loading">
                   <div class="cool-lightbox-loading"></div>
@@ -102,59 +102,70 @@
               <!--/loading-wrapper-->
             </div>
             <!--/imgs-slide-->
-          
+
             <div v-else key="video" class="cool-lightbox__iframe">
               <iframe
-                class="cool-lightbox-video" 
+                class="cool-lightbox-video"
                 v-autoplayObserver
                 :data-autoplay="setAutoplay(itemIndex)"
-                :src="getVideoUrl(getItemSrc(itemIndex))" 
-                v-if="!checkIsMp4(getItemSrc(itemIndex)) && getMediaType(itemIndex) === 'video'" 
-                :style="aspectRatioVideo" 
-                :key="itemIndex" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                :src="getVideoUrl(getItemSrc(itemIndex))"
+                v-if="!checkIsMp4(getItemSrc(itemIndex)) && getMediaType(itemIndex) === 'video'"
+                :style="aspectRatioVideo"
+                :key="itemIndex"
+                frameborder="0"
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
               </iframe>
 
               <iframe
-                class="cool-lightbox-pdf" 
-                :src="getItemSrc(itemIndex)" 
-                v-if="(getMediaType(itemIndex) === 'iframe') || (getPDFurl(getItemSrc(itemIndex)))" 
-                :key="itemIndex" 
-                frameborder="0" 
+                class="cool-lightbox-pdf"
+                :src="getItemSrc(itemIndex)"
+                v-if="(getMediaType(itemIndex) === 'iframe') || (getPDFurl(getItemSrc(itemIndex)))"
+                :key="itemIndex"
+                frameborder="0"
                 allowfullscreen>
               </iframe>
 
-              <video 
+              <video
                 v-autoplayObserver
                 :data-autoplay="setAutoplay(itemIndex)"
-                class="cool-lightbox-video" 
-                v-if="checkIsMp4(getItemSrc(itemIndex)) && getMediaType(itemIndex) === 'video'" 
-                :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(itemIndex))" 
-                controls="" 
+                class="cool-lightbox-video"
+                v-if="checkIsMp4(getItemSrc(itemIndex)) && getMediaType(itemIndex) === 'video'"
+                :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(itemIndex))"
+                controls=""
                 controlslist="nodownload" l
                 poster="">
                 <source :src="checkIsMp4(getItemSrc(itemIndex))" :type="'video/'+getVideoExt(getItemSrc(itemIndex))">
                 Sorry, your browser doesn't support embedded videos
-              </video> 
+              </video>
+
+              <video
+                v-autoplayObserver
+                :data-autoplay="setAutoplay(itemIndex)"
+                class="cool-lightbox-video"
+                v-if="getMediaType(itemIndex) === 'videoplayer'"
+                :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(itemIndex))"
+                controls=""
+                controlslist="nodownload"
+                poster="">
+              </video>
             </div>
             <!--/cool-lightbox__iframe-->
           </div>
           <!--/cool-lightbox__slide-->
         </div>
         <!--/cool-lightbox-wrapper-->
-          
+
         <div v-if="effect === 'fade'" class="cool-lightbox__wrapper">
-          <div 
+          <div
             ref="items"
             class="cool-lightbox__slide cool-lightbox__slide--current"
           >
             <transition name="cool-lightbox-slide-change" mode="out-in">
               <div v-if="getMediaType(imgIndex) === 'image'" key="image" :style="imgWrapperStyle" class="cool-lightbox__slide__img">
                 <transition name="cool-lightbox-slide-change" mode="out-in">
-                <img 
-                  :src="getItemSrc(imgIndex)" 
+                <img
+                  :src="getItemSrc(imgIndex)"
                   :key="imgIndex"
                   draggable="false"
 
@@ -165,7 +176,7 @@
                   @mousemove="handleMouseMove($event)"
                   />
                 </transition>
-                
+
                 <div v-show="imageLoading" class="cool-lightbox-loading-wrapper">
                   <slot name="loading">
                     <div class="cool-lightbox-loading"></div>
@@ -174,42 +185,52 @@
                 <!--/loading-wrapper-->
               </div>
               <!--/imgs-slide-->
-            
+
               <div v-else key="video" class="cool-lightbox__iframe">
                 <transition name="cool-lightbox-slide-change" mode="out-in">
                   <iframe
-                    class="cool-lightbox-video" 
+                    class="cool-lightbox-video"
                     v-autoplayObserver
                     :data-autoplay="setAutoplay(imgIndex)"
-                    :src="getVideoUrl(getItemSrc(imgIndex))" 
-                    v-if="!checkIsMp4(getItemSrc(imgIndex)) && getMediaType(imgIndex) === 'video'" 
-                    :style="aspectRatioVideo" 
-                    :key="getVideoUrl(getItemSrc(imgIndex))" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                    :src="getVideoUrl(getItemSrc(imgIndex))"
+                    v-if="!checkIsMp4(getItemSrc(imgIndex)) && getMediaType(imgIndex) === 'video'"
+                    :style="aspectRatioVideo"
+                    :key="getVideoUrl(getItemSrc(imgIndex))"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
                   </iframe>
 
                   <iframe
-                    class="cool-lightbox-pdf" 
-                    :src="getItemSrc(imgIndex)" 
+                    class="cool-lightbox-pdf"
+                    :src="getItemSrc(imgIndex)"
                     v-if="(getMediaType(imgIndex) === 'iframe') || (getPDFurl(getItemSrc(imgIndex)))"
-                    :key="imgIndex" 
-                    frameborder="0" 
+                    :key="imgIndex"
+                    frameborder="0"
                     allowfullscreen>
                   </iframe>
 
-                  <video class="cool-lightbox-video" 
+                  <video class="cool-lightbox-video"
                     v-autoplayObserver
                     :data-autoplay="setAutoplay(imgIndex)"
-                    v-if="checkIsMp4(getItemSrc(imgIndex)) && getMediaType(imgIndex) === 'video'" 
-                    :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(imgIndex))" 
-                    controls="" 
-                    controlslist="nodownload" 
+                    v-if="checkIsMp4(getItemSrc(imgIndex)) && getMediaType(imgIndex) === 'video'"
+                    :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(imgIndex))"
+                    controls=""
+                    controlslist="nodownload"
                     poster="">
                     <source :src="checkIsMp4(getItemSrc(imgIndex))" :type="'video/'+getVideoExt(getItemSrc(imgIndex))">
                     Sorry, your browser doesn't support embedded videos
-                  </video> 
+                  </video>
+
+                  <video class="cool-lightbox-video"
+                    v-autoplayObserver
+                    :data-autoplay="setAutoplay(imgIndex)"
+                    v-if="getMediaType(imgIndex) === 'videoplayer'"
+                    :style="aspectRatioVideo" :key="checkIsMp4(getItemSrc(imgIndex))"
+                    controls=""
+                    controlslist="nodownload"
+                    poster="">
+                  </video>
                 </transition>
               </div>
               <!--/cool-lightbox__iframe-->
@@ -232,9 +253,9 @@
           </div>
           <!--/cool-lightbox-caption-->
         </transition>
-        
+
         <div class="cool-lightbox-toolbar" :class="buttonsClasses">
-          
+
           <button type="button" v-if="this.slideshow && items.length > 1" title="Play slideshow" class="cool-lightbox-toolbar__btn" @click="togglePlaySlideshow">
             <svg xmlns="http://www.w3.org/2000/svg" v-if="!isPlayingSlideShow" viewBox="0 0 24 24">
               <path d="M6.5 5.4v13.2l11-6.6z"></path>
@@ -249,14 +270,14 @@
 
           <button type="button" @click="showThumbs = !showThumbs" title="Show thumbnails" v-if="items.length > 1 && gallery" class="cool-lightbox-toolbar__btn">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path d="M14.59 14.59h3.76v3.76h-3.76v-3.76zm-4.47 
-              0h3.76v3.76h-3.76v-3.76zm-4.47 0h3.76v3.76H5.65v-3.76zm8.94-4.47h3.76v3.76h-3.76v-3.76zm-4.47 
-              0h3.76v3.76h-3.76v-3.76zm-4.47 0h3.76v3.76H5.65v-3.76zm8.94-4.47h3.76v3.76h-3.76V5.65zm-4.47 
+              <path d="M14.59 14.59h3.76v3.76h-3.76v-3.76zm-4.47
+              0h3.76v3.76h-3.76v-3.76zm-4.47 0h3.76v3.76H5.65v-3.76zm8.94-4.47h3.76v3.76h-3.76v-3.76zm-4.47
+              0h3.76v3.76h-3.76v-3.76zm-4.47 0h3.76v3.76H5.65v-3.76zm8.94-4.47h3.76v3.76h-3.76V5.65zm-4.47
               0h3.76v3.76h-3.76V5.65zm-4.47 0h3.76v3.76H5.65V5.65z">
               </path>
             </svg>
           </button>
-          
+
           <button type="button" v-if="fullScreen" @click="toggleFullScreenMode" class="cool-lightbox-toolbar__btn" title="Fullscreen">
             <svg width="20px" height="20px" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
               <path d="M4.5 11H3v4h4v-1.5H4.5V11zM3 7h1.5V4.5H7V3H3v4zm10.5 6.5H11V15h4v-4h-1.5v2.5zM11 3v1.5h2.5V7H15V3h-4z"></path>
@@ -278,17 +299,17 @@
 
       <transition name="cool-lightbox-modal">
         <div v-if="isZooming && useZoomBar" class="cool-lightbox-zoom">
-          <svg height="469pt" class="cool-lightbox-zoom__icon" viewBox="0 -192 469.33333 469" width="469pt" 
-            xmlns="http://www.w3.org/2000/svg"><path d="m437.332031.167969h-405.332031c-17.664062 
-            0-32 14.335937-32 32v21.332031c0 17.664062 14.335938 32 32 32h405.332031c17.664063 0 32-14.335938 
+          <svg height="469pt" class="cool-lightbox-zoom__icon" viewBox="0 -192 469.33333 469" width="469pt"
+            xmlns="http://www.w3.org/2000/svg"><path d="m437.332031.167969h-405.332031c-17.664062
+            0-32 14.335937-32 32v21.332031c0 17.664062 14.335938 32 32 32h405.332031c17.664063 0 32-14.335938
             32-32v-21.332031c0-17.664063-14.335937-32-32-32zm0 0"/>
           </svg>
           <input type="range" v-model="zoomBar" name="points" min="0" max="50" />
           <svg height="426.66667pt" class="cool-lightbox-zoom__icon" viewBox="0 0 426.66667 426.66667" width="426.66667pt" xmlns="http://www.w3.org/2000/svg">
-            <path d="m405.332031 192h-170.664062v-170.667969c0-11.773437-9.558594-21.332031-21.335938-21.332031-11.773437 0-21.332031 
-            9.558594-21.332031 21.332031v170.667969h-170.667969c-11.773437 0-21.332031 9.558594-21.332031 21.332031 0 
-            11.777344 9.558594 21.335938 21.332031 21.335938h170.667969v170.664062c0 11.777344 9.558594 21.335938 21.332031 
-            21.335938 11.777344 0 21.335938-9.558594 21.335938-21.335938v-170.664062h170.664062c11.777344 0 21.335938-9.558594 
+            <path d="m405.332031 192h-170.664062v-170.667969c0-11.773437-9.558594-21.332031-21.335938-21.332031-11.773437 0-21.332031
+            9.558594-21.332031 21.332031v170.667969h-170.667969c-11.773437 0-21.332031 9.558594-21.332031 21.332031 0
+            11.777344 9.558594 21.335938 21.332031 21.335938h170.667969v170.664062c0 11.777344 9.558594 21.335938 21.332031
+            21.335938 11.777344 0 21.335938-9.558594 21.335938-21.335938v-170.664062h170.664062c11.777344 0 21.335938-9.558594
             21.335938-21.335938 0-11.773437-9.558594-21.332031-21.335938-21.332031zm0 0"/>
           </svg>
         </div>
@@ -403,7 +424,7 @@ export default {
       type: Number,
       default: 3000,
     },
-    
+
     useZoomBar: {
       type: Boolean,
       default: false,
@@ -413,12 +434,12 @@ export default {
       type: Boolean,
       default: false,
     },
-    
+
     srcName: {
       type: String,
       default: 'src',
     },
-    
+
     srcThumb: {
       type: String,
       default: 'thumb',
@@ -468,7 +489,7 @@ export default {
       type: Boolean,
       default: true,
     },
-    
+
     disableZoom: {
       type: Boolean,
       default: false,
@@ -515,7 +536,7 @@ export default {
         }
 
       } else {
-        
+
         if(this.dir === 'rtl') {
           this.xSwipeWrapper = this.imgIndex*window.innerWidth + 30*this.imgIndex
         } else {
@@ -531,17 +552,17 @@ export default {
 
     index(prev, val) {
       const self = this
-      
+
       // body scroll lock
       const $body = document.querySelector('body');
 
       if(prev !== null) {
-        
+
         // swipe type
         this.swipeType = null
         this.initialMouseY = 0
         this.ySwipeWrapper = 0
-        
+
         // set loop from data
         this.loopData = this.loop
 
@@ -562,7 +583,7 @@ export default {
         if(this.enableWheelEvent) {
           window.addEventListener('wheel', this.wheelEvent)
         }
-        
+
         // only in mobile
         if(window.innerWidth < 700) {
 
@@ -578,7 +599,7 @@ export default {
         $body.style.position = 'fixed';
         $body.style.top = `-${this.scrollPosition}px`;
         $body.style.width = '100%';
-        
+
         $body.style.height = window.innerHeight+'px';
 
       } else {
@@ -610,7 +631,7 @@ export default {
         $body.style.removeProperty('top');
         $body.style.removeProperty('width');
         window.scrollTo(0, this.scrollPosition);
-        
+
         this.scrollPosition = 0;
 
         // remove click event
@@ -618,18 +639,18 @@ export default {
 
         // remove resize event
         window.removeEventListener('resize', this.xPositionOnResize)
-        
+
         // remove wheel event
         if(this.enableWheelEvent) {
           window.removeEventListener('wheel', this.wheelEvent)
         }
       }
 
-    }, 
-    
+    },
+
     imgIndex(prev, val) {
       const thisContext = this
-      
+
       // when animation is loaded
       this.$nextTick(() => {
 
@@ -637,7 +658,7 @@ export default {
           this.setLightboxInnerWidth()
           this.setXPosition(prev)
         }
-        
+
         if(prev !== null & val === null) {
           this.$emit("on-open", prev);
         }
@@ -653,7 +674,7 @@ export default {
 
           // add caption padding to Lightbox wrapper
           this.addCaptionPadding()
-          
+
           // setAspectRatioVideo when is swipe
           if(this.effect === 'swipe') {
             this.setAspectRatioVideo();
@@ -673,7 +694,7 @@ export default {
         this.ySwipeWrapper = 0
 
       })
-    }, 
+    },
   },
 
   methods: {
@@ -806,7 +827,7 @@ export default {
       const self = this
       const swipeType = this.swipeType
       this.isDraggingSwipe = false
-      
+
       // horizontal swipe type
       if(this.initialMouseX === 0 && swipeType == 'h') {
         return false
@@ -822,15 +843,15 @@ export default {
         }
       }
 
-      // check if is dragged 
+      // check if is dragged
       if(
-        ((this.endMouseX - this.initialMouseX === 0) && swipeType == 'h') || 
+        ((this.endMouseX - this.initialMouseX === 0) && swipeType == 'h') ||
         this.isZooming ||
         ((this.endMouseY - this.initialMouseY === 0) && swipeType == 'v')
       ) {
         return;
-      } 
-      
+      }
+
       // set swipe animation
       this.setSwipeAnimation()
 
@@ -850,7 +871,7 @@ export default {
             return this.swipeToLeft()
           }
           return this.swipeToRight()
-        } 
+        }
 
         // if the swipe is to the left
         if((this.endMouseX - this.initialMouseX) > 40) {
@@ -871,8 +892,8 @@ export default {
         } else {
           this.ySwipeWrapper = 0
         }
-      } 
-      
+      }
+
       this.swipeType = null
       const windowWidth = this.lightboxInnerWidth
 
@@ -883,7 +904,7 @@ export default {
 
       this.xSwipeWrapper = -this.imgIndex*windowWidth - 30*this.imgIndex
     },
-    
+
     // swipe to left effect
     swipeToLeft() {
       if(!this.hasPrevious && this.effect === 'swipe') {
@@ -897,7 +918,7 @@ export default {
 
       this.changeIndexToPrev()
     },
-    
+
     // swipe to right effect
     swipeToRight() {
       if(!this.hasNext && this.effect === 'swipe') {
@@ -919,7 +940,7 @@ export default {
       }
       return event.touches[0].clientX;
     },
-    
+
     // function that return Y position from event
     getMouseYPosFromEvent(event) {
       if(event.type.indexOf('mouse') !== -1){
@@ -961,7 +982,7 @@ export default {
 
       return itemUrl
     },
-    
+
     // get item src
     getItemSrc(imgIndex) {
       if(imgIndex === null) {
@@ -975,7 +996,7 @@ export default {
 
       return item
     },
-    
+
     getItemThumb(imgIndex) {
       if(imgIndex === null) {
         return false
@@ -984,7 +1005,7 @@ export default {
       const item = this.items[imgIndex]
       if(this.checkIfIsObject(imgIndex)) {
         return item[this.srcThumb]
-      } 
+      }
 
       if(this.getVideoUrl(item)) {
         return false
@@ -1000,17 +1021,17 @@ export default {
       }
 
       if(this.checkIfIsObject(imgIndex)) {
-        
+
         const item = this.items[imgIndex]
         //item type is specified, so return it
         if (item[this.srcMediaType]) {
           return item[this.srcMediaType]
         }
       }
-    
+
       if (this.getVideoUrl(this.getItemSrc(imgIndex))) {
         return 'video'
-      } else if (this.getPDFurl(this.getItemSrc(imgIndex))) { 
+      } else if (this.getPDFurl(this.getItemSrc(imgIndex))) {
         return 'iframe'
       } else {
         return 'image'
@@ -1053,7 +1074,7 @@ export default {
       const self = this
       this.progressWidth = 100;
       this.intervalProgress = setInterval(frame, this.slideshowDuration + 90);
-      
+
       self.stylesInterval = {
         'transform': 'scaleX(1)',
         'background': this.slideshowColorBar,
@@ -1064,7 +1085,7 @@ export default {
           'transform': 'scaleX(0)',
           'transition': 'none',
         }
-        
+
         if(self.dir === 'rtl') {
           self.onPrevClick(true)
         } else {
@@ -1083,7 +1104,7 @@ export default {
           }, 50)
         }
       }
-    }, 
+    },
 
     // show buttons event
     showButtons(event) {
@@ -1133,11 +1154,11 @@ export default {
         this.lastX = e.clientX
         this.lastY = e.clientY
         this.canZoom = false
-        
+
         const item = e.target.parentNode
         const newZoom = 1.6 + this.zoomBar/10;
         item.style.transform  = 'translate3d(calc(-50% + '+this.left+'px), calc(-50% + '+this.top+'px), 0px) scale3d('+newZoom+', '+newZoom+', '+newZoom+')';
-    
+
       }
       e.stopPropagation()
     },
@@ -1167,14 +1188,14 @@ export default {
       } else {
         item = this.$refs.items.childNodes[0]
       }
-      
+
       // zoom variables
       const isZooming = this.isZooming
       const thisContext = this
 
       // Is zooming check
       if(isZooming) {
-        if(!this.isDraging) { 
+        if(!this.isDraging) {
           this.isZooming = false
           this.zoomBar = 0
         }
@@ -1199,7 +1220,7 @@ export default {
 
       } else {
 
-        // show buttons 
+        // show buttons
         this.buttonsVisible = true
         this.resetZoom()
       }
@@ -1217,7 +1238,7 @@ export default {
 
       // only if index is not null
       if(this.imgIndex != null) {
-        
+
         let item;
         if(this.effect == 'swipe') {
           item = this.$refs.items[this.imgIndex].childNodes[0]
@@ -1252,7 +1273,7 @@ export default {
         this.aspectRatioVideo.width = width+'px'
 
       } else {
-        
+
         setTimeout(function() {
           let height = el.clientHeight;
           height -= parseFloat(computedStyle.paddingTop) + parseFloat(computedStyle.paddingBottom);
@@ -1350,11 +1371,11 @@ export default {
       if(this.isZooming) {
         return false;
       }
-      
+
       if(!isFromSlideshow) {
         this.stopSlideShow()
       }
-      
+
       this.setSwipeAnimation()
 
       if(this.dir === 'rtl') {
@@ -1418,7 +1439,7 @@ export default {
 
       // set x position
       this.xSwipeWrapper = -index*this.lightboxInnerWidth-30*index
-      return; 
+      return;
     },
 
     // index change
@@ -1427,13 +1448,13 @@ export default {
       this.$emit('on-change', index)
     },
 
-    // caption size 
+    // caption size
     addCaptionPadding() {
       if(this.checkIfIsObject(this.imgIndex) && (this.items[this.imgIndex].title || this.items[this.imgIndex].descripcion)) {
         const el = document.getElementsByClassName('cool-lightbox-caption');
         if(el.length > 0) {
           this.paddingBottom = el[0].offsetHeight
-        } 
+        }
       } else {
         this.paddingBottom = 60
       }
@@ -1473,7 +1494,7 @@ export default {
 
       return false
     },
-    
+
     // getYoutube ID
     getYoutubeID(url) {
 
@@ -1510,7 +1531,7 @@ export default {
 
     // vimeo ID
     getVimeoID(url) {
-      
+
       // if is vimeo video
       const result = url.match(/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|album\/(?:\d+)\/video\/|video\/|)(\d+)(?:[a-zA-Z0-9_\-]+)?/i);
       if(result !== null) {
@@ -1540,10 +1561,10 @@ export default {
 
       const str = new String(url);
       if(
-        (str.indexOf('.mp4') !== -1) || 
-        (str.indexOf('.mov') !== -1) || 
-        (str.indexOf('.webm') !== -1) || 
-        (str.indexOf('.ogg') !== -1) || 
+        (str.indexOf('.mp4') !== -1) ||
+        (str.indexOf('.mov') !== -1) ||
+        (str.indexOf('.webm') !== -1) ||
+        (str.indexOf('.ogg') !== -1) ||
         (str.indexOf('.avi') !== -1)
       ) {
         return url
@@ -1570,7 +1591,7 @@ export default {
       if(str.indexOf('.ogg') !== -1) {
         return 'ogg'
       }
-      
+
       if(str.indexOf('.avi') !== -1) {
         return 'avi'
       }
@@ -1605,7 +1626,7 @@ export default {
   },
 
   computed: {
-    
+
     // Images wrapper styles to use drag and zoom
     imgWrapperStyle() {
       return {
@@ -1617,7 +1638,7 @@ export default {
 
     // lightbox styles
     lightboxStyles() {
-      return { 
+      return {
         'z-index': this.zIndex,
         'background-color': this.overlayColor,
       }
@@ -1670,11 +1691,11 @@ export default {
       if(this.dir === 'rtl') {
         return (this.imgIndex - 1 >= 0)
       }
-        
+
       return (this.imgIndex + 1 < this.items.length)
     },
 
-    // check if the slide has previous element 
+    // check if the slide has previous element
     hasPreviousButton() {
       if(this.dir === 'rtl') {
         return (this.imgIndex + 1 < this.items.length)
@@ -1688,7 +1709,7 @@ export default {
       return (this.imgIndex + 1 < this.items.length)
     },
 
-    // check if the slide has previous element 
+    // check if the slide has previous element
     hasPrevious() {
       return (this.imgIndex - 1 >= 0)
     },
@@ -1710,19 +1731,19 @@ $breakpoints: (
 
   // If the breakpoint exists in the map.
 	@if map-has-key($breakpoints, $breakpoint) {
-	
+
     // Get the breakpoint value.
     $breakpoint-value: map-get($breakpoints, $breakpoint);
-	
+
 	  //Build the media query
 		@media (min-width: $breakpoint-value) {
 			@content;
 		}
-	} 
+	}
 }
 
 .cool-lightbox {
-  position: fixed; 
+  position: fixed;
   left: 0;
   bottom: 0;
   top: 0;
@@ -1987,7 +2008,7 @@ $breakpoints: (
     display: block;
   }
   &.cool-lightbox--is-swipping {
-    cursor: -webkit-grabbing; 
+    cursor: -webkit-grabbing;
     cursor: grabbing;
     iframe {
       pointer-events: none;
@@ -2013,7 +2034,7 @@ $breakpoints: (
         cursor: move; /* fallback if grab cursor is unsupported */
         cursor: grab;
         cursor: -moz-grab;
-        cursor: -webkit-grab; 
+        cursor: -webkit-grab;
       }
     }
     .cool-lightbox-caption {
