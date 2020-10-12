@@ -62,7 +62,7 @@
 
         function autoplayVideo() {
           var tagName = el.tagName;
-          var autoplay = el.dataset.autoplay;
+          var autoplay = el.dataset.autoplay; 
           if(autoplay) {
             if(tagName === 'VIDEO') {
               el.muted = true;
@@ -87,7 +87,7 @@
             }
           }
         }
-
+    
         function handleIntersect(entries, observer) {
           entries.forEach(function (entry) {
             if (entry.isIntersecting) {
@@ -96,7 +96,7 @@
             }
           });
         }
-
+    
         function createObserver() {
           var options = {
             root: null,
@@ -287,6 +287,11 @@
       dir: {
         type: String,
         default: 'ltr',
+      },
+
+      interactiveTargets: {
+        type: String,
+        default: '',
       },
 
       enableScrollLock: {
@@ -1629,17 +1634,17 @@
     /* style */
     var __vue_inject_styles__ = undefined;
     /* scoped */
-    var __vue_scope_id__ = "data-v-149efbd6";
+    var __vue_scope_id__ = "data-v-6a5d7d76";
     /* module identifier */
-    var __vue_module_identifier__ = "data-v-c07ca5d4";
+    var __vue_module_identifier__ = "data-v-6a5d7d76";
     /* functional template */
     var __vue_is_functional_template__ = false;
     /* style inject */
-
+    
     /* style inject SSR */
+    
 
-
-
+    
     var CoolLightBox = normalizeComponent_1(
       { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
       __vue_inject_styles__,
