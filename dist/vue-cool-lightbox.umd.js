@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = global || self, factory(global.CoolLightBox = {}));
-}(this, (function (exports) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('body-scroll-lock')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'body-scroll-lock'], factory) :
+  (global = global || self, factory(global.CoolLightBox = {}, global.bodyScrollLock));
+}(this, (function (exports, bodyScrollLock) { 'use strict';
 
   var LazyLoadDirective = {
     inserted: function (el) {
@@ -62,7 +62,7 @@
 
         function autoplayVideo() {
           var tagName = el.tagName;
-          var autoplay = el.dataset.autoplay; 
+          var autoplay = el.dataset.autoplay;
           if(autoplay) {
             if(tagName === 'VIDEO') {
               el.muted = true;
@@ -87,7 +87,7 @@
             }
           }
         }
-    
+
         function handleIntersect(entries, observer) {
           entries.forEach(function (entry) {
             if (entry.isIntersecting) {
@@ -96,7 +96,7 @@
             }
           });
         }
-    
+
         function createObserver() {
           var options = {
             root: null,
@@ -149,7 +149,6 @@
         imageLoading: false,
         showThumbs: false,
         isFullScreenMode: false,
-        scrollPosition: 0,
 
         // aspect ratio videos
         aspectRatioVideo: {
@@ -290,10 +289,10 @@
         default: 'ltr',
       },
 
-      interactiveTargets: {
-        type: String,
-        default: '',
-      }
+      enableScrollLock: {
+        type: Boolean,
+        default: true,
+      },
     },
 
     watch: {
@@ -388,14 +387,12 @@
             }, 200);
           }
 
-          // enable body scroll lock
-          this.scrollPosition = window.pageYOffset;
-          $body.style.overflow = 'hidden';
-          $body.style.position = 'fixed';
-          $body.style.top = "-" + (this.scrollPosition) + "px";
-          $body.style.width = '100%';
-
-          $body.style.height = window.innerHeight+'px';
+          if (this.enableScrollLock) {
+            setTimeout(function() {
+              self.setCompensateForScrollbar();
+              bodyScrollLock.disableBodyScroll(self.$refs.coolLightbox);
+            }, 50);
+          }
 
         } else {
 
@@ -419,15 +416,10 @@
           // remove events listener
           window.removeEventListener('keydown', this.eventListener);
 
-          // disable body scroll lock
-          $body.style.removeProperty('overflow');
-          $body.style.removeProperty('position');
-          $body.style.removeProperty('height');
-          $body.style.removeProperty('top');
-          $body.style.removeProperty('width');
-          window.scrollTo(0, this.scrollPosition);
-
-          this.scrollPosition = 0;
+          if (this.enableScrollLock) {
+            self.removeCompensateForScrollbar();
+            bodyScrollLock.enableBodyScroll(self.$refs.coolLightbox);
+          }
 
           // remove click event
           window.removeEventListener('click', this.showButtons);
@@ -493,6 +485,31 @@
     },
 
     methods: {
+      removeCompensateForScrollbar: function removeCompensateForScrollbar() {
+        document.body.classList.remove("compensate-for-scrollbar");
+        var noscrollStyle = document.getElementById("coollightbox-style-noscroll");
+        if(noscrollStyle !== null) {
+          document.getElementById("coollightbox-style-noscroll").remove();
+        }
+      },
+
+      setCompensateForScrollbar: function setCompensateForScrollbar() {
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        if (
+          !isMobile &&
+          document.body.scrollHeight > window.innerHeight
+        ) {
+          document.getElementsByTagName('head')[0].insertAdjacentHTML('beforeend',
+            '<style id="coollightbox-style-noscroll" type="text/css">.compensate-for-scrollbar{margin-right:' +
+              (window.innerWidth - document.documentElement.clientWidth) +
+            "px;}</style>"
+          );
+
+          document.body.classList.add("compensate-for-scrollbar");
+        }
+      },
+
       setAutoplay: function setAutoplay(itemIndex) {
         if(this.checkIfIsObject(itemIndex) && this.items[itemIndex].hasOwnProperty('autoplay') && this.items[itemIndex].autoplay) {
           return true;
@@ -1600,7 +1617,7 @@
   /* script */
   var __vue_script__ = script;
   /* template */
-  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('transition',{attrs:{"name":"cool-lightbox-modal"}},[(_vm.isVisible)?_c('div',{staticClass:"cool-lightbox",class:_vm.lightboxClasses,style:(_vm.lightboxStyles),on:{"click":_vm.closeModal}},[(_vm.gallery)?_c('div',{staticClass:"cool-lightbox-thumbs"},[_c('div',{staticClass:"cool-lightbox-thumbs__list"},_vm._l((_vm.items),function(item,itemIndex){return _c('button',{key:itemIndex,staticClass:"cool-lightbox__thumb",class:{
+  var __vue_render__ = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('transition',{attrs:{"name":"cool-lightbox-modal"}},[(_vm.isVisible)?_c('div',{ref:"coolLightbox",staticClass:"cool-lightbox",class:_vm.lightboxClasses,style:(_vm.lightboxStyles),on:{"click":_vm.closeModal}},[(_vm.gallery)?_c('div',{staticClass:"cool-lightbox-thumbs"},[_c('div',{staticClass:"cool-lightbox-thumbs__list"},_vm._l((_vm.items),function(item,itemIndex){return _c('button',{key:itemIndex,staticClass:"cool-lightbox__thumb",class:{
               active: itemIndex === _vm.imgIndex,
               'is-video': _vm.getMediaType(itemIndex) === 'video'
             },attrs:{"type":"button"},on:{"click":function($event){_vm.imgIndex = itemIndex;}}},[(_vm.getMediaType(itemIndex) === 'video')?_c('svg',{staticClass:"cool-lightbox__thumb__icon",attrs:{"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 24 24"}},[_c('path',{attrs:{"d":"M6.5 5.4v13.2l11-6.6z"}})]):_vm._e(),_vm._v(" "),_c('img',{attrs:{"src":_vm.itemThumb(_vm.getItemSrc(itemIndex), itemIndex),"alt":""}})])}),0)]):_vm._e(),_vm._v(" "),_c('div',{staticClass:"cool-lightbox__inner",style:(_vm.innerStyles),on:{"mousedown":_vm.startSwipe,"mousemove":_vm.continueSwipe,"mouseup":_vm.endSwipe,"touchstart":_vm.startSwipe,"touchmove":_vm.continueSwipe,"touchend":_vm.endSwipe}},[_c('div',{staticClass:"cool-lightbox__progressbar",style:(_vm.stylesInterval)}),_vm._v(" "),_c('div',{staticClass:"cool-lightbox__navigation"},[_c('button',{directives:[{name:"show",rawName:"v-show",value:((_vm.hasPreviousButton || _vm.loopData) && _vm.items.length > 1),expression:"(hasPreviousButton || loopData) && items.length > 1"}],staticClass:"cool-lightbox-button cool-lightbox-button--prev",class:_vm.buttonsClasses,attrs:{"type":"button","title":"Previous"},on:{"click":_vm.onPrevClick}},[_vm._t("icon-previous",[_c('div',{staticClass:"cool-lightbox-button__icon"},[_c('svg',{attrs:{"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 24 24"}},[_c('path',{attrs:{"d":"M11.28 15.7l-1.34 1.37L5 12l4.94-5.07 1.34 1.38-2.68 2.72H19v1.94H8.6z"}})])])])],2),_vm._v(" "),_c('button',{directives:[{name:"show",rawName:"v-show",value:((_vm.hasNextButton || _vm.loopData) && _vm.items.length > 1),expression:"(hasNextButton || loopData) && items.length > 1"}],staticClass:"cool-lightbox-button cool-lightbox-button--next",class:_vm.buttonsClasses,attrs:{"type":"button","title":"Next"},on:{"click":function($event){return _vm.onNextClick(false)}}},[_vm._t("icon-next",[_c('div',{staticClass:"cool-lightbox-button__icon"},[_c('svg',{attrs:{"xmlns":"http://www.w3.org/2000/svg","viewBox":"0 0 24 24"}},[_c('path',{attrs:{"d":"M15.4 12.97l-2.68 2.72 1.34 1.38L19 12l-4.94-5.07-1.34 1.38 2.68 2.72H5v1.94z"}})])])])],2)]),_vm._v(" "),(_vm.effect === 'swipe')?_c('div',{staticClass:"cool-lightbox__wrapper cool-lightbox__wrapper--swipe",style:({
@@ -1614,15 +1631,15 @@
     /* scoped */
     var __vue_scope_id__ = "data-v-149efbd6";
     /* module identifier */
-    var __vue_module_identifier__ = "data-v-149efbd6";
+    var __vue_module_identifier__ = "data-v-c07ca5d4";
     /* functional template */
     var __vue_is_functional_template__ = false;
     /* style inject */
-    
-    /* style inject SSR */
-    
 
-    
+    /* style inject SSR */
+
+
+
     var CoolLightBox = normalizeComponent_1(
       { render: __vue_render__, staticRenderFns: __vue_staticRenderFns__ },
       __vue_inject_styles__,

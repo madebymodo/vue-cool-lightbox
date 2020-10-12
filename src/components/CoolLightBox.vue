@@ -3,6 +3,7 @@
     <div class="cool-lightbox"
       v-bind:class="lightboxClasses"
       v-if="isVisible"
+      ref="coolLightbox"
       @click="closeModal"
       v-bind:style="lightboxStyles">
 
@@ -324,6 +325,7 @@
 <script>
 import LazyLoadDirective from "../directives/LazyLoad";
 import AutoplayObserver from "../directives/AutoplayObserver";
+import { disableBodyScroll, enableBodyScroll } from 'body-scroll-lock';
 
 export default {
   directives: {
@@ -359,7 +361,6 @@ export default {
       imageLoading: false,
       showThumbs: false,
       isFullScreenMode: false,
-      scrollPosition: 0,
 
       // aspect ratio videos
       aspectRatioVideo: {
@@ -503,7 +504,12 @@ export default {
     interactiveTargets: {
       type: String,
       default: '',
-    }
+    },
+
+    enableScrollLock: {
+      type: Boolean,
+      default: true,
+    },
   },
 
   watch: {
@@ -598,14 +604,12 @@ export default {
           }, 200)
         }
 
-        // enable body scroll lock
-        this.scrollPosition = window.pageYOffset;
-        $body.style.overflow = 'hidden';
-        $body.style.position = 'fixed';
-        $body.style.top = `-${this.scrollPosition}px`;
-        $body.style.width = '100%';
-
-        $body.style.height = window.innerHeight+'px';
+        if (this.enableScrollLock) {
+          setTimeout(function() {
+            self.setCompensateForScrollbar();
+            disableBodyScroll(self.$refs.coolLightbox);
+          }, 50);
+        }
 
       } else {
 
@@ -629,15 +633,10 @@ export default {
         // remove events listener
         window.removeEventListener('keydown', this.eventListener)
 
-        // disable body scroll lock
-        $body.style.removeProperty('overflow');
-        $body.style.removeProperty('position');
-        $body.style.removeProperty('height');
-        $body.style.removeProperty('top');
-        $body.style.removeProperty('width');
-        window.scrollTo(0, this.scrollPosition);
-
-        this.scrollPosition = 0;
+        if (this.enableScrollLock) {
+          self.removeCompensateForScrollbar();
+          enableBodyScroll(self.$refs.coolLightbox);
+        }
 
         // remove click event
         window.removeEventListener('click', this.showButtons)
@@ -703,6 +702,31 @@ export default {
   },
 
   methods: {
+    removeCompensateForScrollbar() {
+      document.body.classList.remove("compensate-for-scrollbar");
+      const noscrollStyle = document.getElementById("coollightbox-style-noscroll");
+      if(noscrollStyle !== null) {
+        document.getElementById("coollightbox-style-noscroll").remove();
+      }
+    },
+
+    setCompensateForScrollbar() {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (
+        !isMobile &&
+        document.body.scrollHeight > window.innerHeight
+      ) {
+        document.getElementsByTagName('head')[0].insertAdjacentHTML('beforeend',
+          '<style id="coollightbox-style-noscroll" type="text/css">.compensate-for-scrollbar{margin-right:' +
+            (window.innerWidth - document.documentElement.clientWidth) +
+          "px;}</style>"
+        );
+
+        document.body.classList.add("compensate-for-scrollbar");
+      }
+    },
+
     setAutoplay(itemIndex) {
       if(this.checkIfIsObject(itemIndex) && this.items[itemIndex].hasOwnProperty('autoplay') && this.items[itemIndex].autoplay) {
         return true;
